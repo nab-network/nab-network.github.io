@@ -1,0 +1,235 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>NAB Network Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ed0100;
+            --secondary-color: white;
+            --background-color: #202120;
+            --text-color: white;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --box-background-color: black;
+        }
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .sso-container {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .sso-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .sso-description {
+            font-size: 16px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .sso-code-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .code-input {
+            width: 45px;
+            height: 45px;
+            font-size: 20px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            color: #333;
+            transition: border-color 0.3s ease;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(0, 119, 181, 0.3);
+        }
+
+        .custom-red-button {
+            position: relative;
+            background-color: #ed0100;
+            color: white;
+            border: 1px solid #f87171;
+            border-bottom-width: 4px;
+            font-weight: 500;
+            overflow: hidden;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .custom-red-button:hover {
+            filter: brightness(1.5);
+            border-top-width: 4px;
+            border-bottom-width: 1px;
+        }
+
+        .custom-red-button:active {
+            opacity: 0.75;
+        }
+
+        .rounded-box {
+            width: 370px;
+            height: auto; /* Let it grow with content */
+            background-color: var(--box-background-color);
+            border: 2px solid #333;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        /* Toggle Button */
+        .toggle-button {
+            margin: 20px auto 0;
+            width: 50px;
+            height: 26px;
+            background-color: #ccc;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-button::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: white;
+            transition: transform 0.3s;
+            transform: translateX(3px);
+        }
+
+        .toggle-button.active {
+            background-color: #666;
+        }
+
+        .toggle-button.active::before {
+            transform: translateX(24px);
+        }
+        .toggle-description {
+            font-size: 14px;
+            color: white;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="rounded-box">
+    <div class="sso-container">
+        <div class="nab-logo">
+            <center>
+                <img src="logo.png" alt="NAB Logo" height="100px" width="150px">
+            </center>
+        </div>
+        <div class="auth-box">
+            <h1 class="sso-title">SSO Key Verification</h1>
+            <p class="sso-description">Enter your SSO key below.</p>
+            <br>
+            <div class="sso-code-inputs">
+                <input type="text" class="code-input" maxlength="1">
+                <input type="text" class="code-input" maxlength="1">
+                <input type="text" class="code-input" maxlength="1">
+                <input type="text" class="code-input" maxlength="1">
+                <input type="text" class="code-input" maxlength="1">
+                <input type="text" class="code-input" maxlength="1">
+            </div>
+
+            <div class="sso-timer"></div>
+            <div id="error-message" class="sso-error-message"></div>
+            <br>
+            <button class="custom-red-button">Verify and Continue</button>
+        </div>
+    </div>
+    <center>
+        <p class="toggle-description">Toggle between light and dark mode</p>
+    </center>
+    <div class="toggle-button" id="theme-toggle"></div>
+</div>
+
+<script>
+    const toggleButton = document.getElementById('theme-toggle');
+    const root = document.documentElement;
+
+    toggleButton.addEventListener('click', () => {
+        toggleButton.classList.toggle('active');
+
+        if (toggleButton.classList.contains('active')) {
+            // Light mode
+            root.style.setProperty('--background-color', '#f5f5f5'); // Off-white
+            root.style.setProperty('--text-color', '#333'); // Dark text
+            root.style.setProperty('--box-background-color', 'white'); // Box white
+        } else {
+            // Dark mode
+            root.style.setProperty('--background-color', '#202120');
+            root.style.setProperty('--text-color', 'white');
+            root.style.setProperty('--box-background-color', 'black');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const codeInputs = document.querySelectorAll('.code-input');
+        const submitButton = document.querySelector('.custom-red-button');
+        
+        // Handle input focus and auto-advance
+        codeInputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                if (this.value.length === 1) {
+                    if (index < codeInputs.length - 1) {
+                        codeInputs[index + 1].focus();
+                    }
+                }
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value && index > 0) {
+                    codeInputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Handle SSO submission
+        submitButton.addEventListener('click', function() {
+            const code = Array.from(codeInputs).map(input => input.value).join('');
+            
+            // Check if the code is valid (you can modify this validation)
+            if (code.length === 6) {
+                // Store SSO status
+                localStorage.setItem('ssoAuthenticated', 'true');
+                // Redirect to profile creation
+                window.location.href = 'profile-creation.html';
+            } else {
+                alert('Please enter a valid 6-digit SSO code');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
