@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAB Professional Network - Colleague Profiles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ed0100;
+            --secondary-color: white;
+            --background-color: #202120;
+            --text-color: white;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 1px solid #444;
+            border-radius: var(--border-radius);
+            background-color: #333;
+            color: white;
+            font-size: 16px;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .profile-card {
+            background-color: #333;
+            border-radius: 10px;
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        .profile-card:hover {
+            transform: translateY(-5px);
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .profile-picture {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid var(--primary-color);
+        }
+        .profile-info h3 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+        .profile-info p {
+            margin: 5px 0;
+            color: #ccc;
+        }
+        .skills-container {
+            margin-top: 15px;
+        }
+        .skill-tag {
+            display: inline-block;
+            background-color: #444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin: 3px;
+            font-size: 14px;
+        }
+        .social-links {
+            margin-top: 15px;
+        }
+        .social-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .social-links a:hover {
+            text-decoration: underline;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #ccc;
+        }
+        .error {
+            text-align: center;
+            padding: 20px;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="logo.png" alt="NAB Logo" class="logo">
+        <h1>Colleague Profiles</h1>
+    </div>
+
+    <div class="search-container">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search by name, position, or skills...">
+    </div>
+
+    <div id="profilesContainer" class="profiles-grid">
+        <div class="loading">Loading profiles...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const profilesContainer = document.getElementById('profilesContainer');
+            const searchInput = document.getElementById('searchInput');
+            let allProfiles = [];
+
+            // Fetch profiles from the backend
+            async function fetchProfiles() {
+                try {
+                    const response = await fetch('http://localhost:3000/api/employees');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch profiles');
+                    }
+                    allProfiles = await response.json();
+                    displayProfiles(allProfiles);
+                } catch (error) {
+                    console.error('Error:', error);
+                    profilesContainer.innerHTML = '<div class="error">Failed to load profiles. Please try again later.</div>';
+                }
+            }
+
+            // Display profiles
+            function displayProfiles(profiles) {
+                if (profiles.length === 0) {
+                    profilesContainer.innerHTML = '<div class="error">No profiles found.</div>';
+                    return;
+                }
+
+                profilesContainer.innerHTML = profiles.map(profile => `
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <img src="${profile.ProfilePicture ? `http://localhost:3000/uploads/${profile.ProfilePicture}` : 'https://via.placeholder.com/80'}" 
+                                 alt="${profile.FullName}" 
+                                 class="profile-picture">
+                            <div class="profile-info">
+                                <h3>${profile.FullName}</h3>
+                                <p>${profile.PositionInCompany}</p>
+                                <p>${profile.Email}</p>
+                            </div>
+                        </div>
+                        <div class="skills-container">
+                            ${profile.skills ? profile.skills.split(',').map(skill => {
+                                const [name, level] = skill.split(':');
+                                return `<span class="skill-tag">${name} (${level})</span>`;
+                            }).join('') : ''}
+                        </div>
+                        <div class="social-links">
+                            ${profile.SocialMediaLink1 ? `<a href="${profile.SocialMediaLink1}" target="_blank">LinkedIn</a>` : ''}
+                            ${profile.SocialMediaLink2 ? `<a href="${profile.SocialMediaLink2}" target="_blank">Instagram</a>` : ''}
+                            ${profile.SocialMediaLink3 ? `<a href="${profile.SocialMediaLink3}" target="_blank">Facebook</a>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filteredProfiles = allProfiles.filter(profile => {
+                    const searchableText = `
+                        ${profile.FullName}
+                        ${profile.PositionInCompany}
+                        ${profile.Email}
+                        ${profile.skills || ''}
+                    `.toLowerCase();
+                    return searchableText.includes(searchTerm);
+                });
+                displayProfiles(filteredProfiles);
+            });
+
+            // Initial load
+            await fetchProfiles();
+        });
+    </script>
+</body>
+</html> 
