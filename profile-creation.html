@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:class="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAB Professional Network - Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script type="module" src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const skillsList = document.getElementById('skills-list');
+            const skillInput = document.getElementById('skill-input');
+            let skills = [];
+
+            // Airtable configuration for teams
+            const AIRTABLE_API_KEY = 'patw6VVGEq3Uq8h9E.91e9582b450cc5ee58f50bf1793eb917968404239b314c74cd20df28462636cf';
+            const AIRTABLE_BASE_ID = 'appwgI8yyj7oLI4Ui';
+            const TEAMS_TABLE_NAME = 'Teams'; // New table for teams
+            const TEAMS_API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TEAMS_TABLE_NAME}`;
+
+            // Load existing teams from Airtable and create next team number
+            async function loadTeams() {
+                try {
+                    const response = await fetch(TEAMS_API_URL, {
+                        headers: {
+                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        const existingTeams = data.records.map(record => record.fields.TeamName);
+                        updateTeamDropdown(existingTeams);
+                    } else {
+                        console.error('Failed to load teams from Airtable');
+                        // Start with Team 1 if no teams exist
+                        updateTeamDropdown([]);
+                    }
+                } catch (error) {
+                    console.error('Error loading teams:', error);
+                    // Start with Team 1 if network error
+                    updateTeamDropdown([]);
+                }
+            }
+
+            // Update team dropdown with auto-numbered teams
+            function updateTeamDropdown(existingTeams) {
+                const teamSelect = document.getElementById('team');
+                
+                // Clear existing options
+                teamSelect.innerHTML = '<option value="">Select a team</option>';
+                
+                // Find the highest team number
+                let maxTeamNumber = 0;
+                existingTeams.forEach(team => {
+                    const match = team.match(/^Team (\d+)$/);
+                    if (match) {
+                        const teamNumber = parseInt(match[1]);
+                        if (teamNumber > maxTeamNumber) {
+                            maxTeamNumber = teamNumber;
+                        }
+                    }
+                });
+                
+                // Create teams from 1 to maxTeamNumber + 10 (for future use)
+                for (let i = 1; i <= maxTeamNumber + 10; i++) {
+                    const teamName = `Team ${i}`;
+                    const option = document.createElement('option');
+                    option.value = teamName;
+                    option.textContent = teamName;
+                    teamSelect.appendChild(option);
+                }
+            }
+
+            // Handle team selection - create team in database if it doesn't exist
+            document.getElementById('team').addEventListener('change', async function() {
+                const selectedTeam = this.value;
+                if (selectedTeam && selectedTeam.startsWith('Team ')) {
+                    await ensureTeamExists(selectedTeam);
+                }
+            });
+
+            // Ensure team exists in Airtable database
+            async function ensureTeamExists(teamName) {
+                try {
+                    // First, check if team already exists
+                    const response = await fetch(TEAMS_API_URL, {
+                        headers: {
+                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        const existingTeams = data.records.map(record => record.fields.TeamName);
+                        
+                        // If team doesn't exist, create it
+                        if (!existingTeams.includes(teamName)) {
+                            await createTeam(teamName);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking team existence:', error);
+                }
+            }
+
+            // Create team in Airtable
+            async function createTeam(teamName) {
+                try {
+                    const response = await fetch(TEAMS_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            records: [
+                                {
+                                    fields: {
+                                        'TeamName': teamName
+                                    }
+                                }
+                            ]
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Team created:', data);
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Error creating team:', errorData);
+                    }
+                } catch (error) {
+                    console.error('Network error creating team:', error);
+                }
+            }
+
+            // Load teams when page loads
+            loadTeams();
+
+            // Handle skills input
+            skillInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const skill = this.value.trim();
+                    if (skill && !skills.some(s => s.name === skill)) { // Check if skill name already exists
+                        const skillLevel = prompt(`Please enter your skill level for ${skill} (1-5 out of 5):`);
+                        const level = parseInt(skillLevel);
+
+                        if (isNaN(level) || level < 1 || level > 5) {
+                            alert('Please enter a valid skill level between 1 and 5. Try again.');
+                            return;
+                        }
+
+                        skills.push({
+                            name: skill,
+                            level: level
+                        });
+                        updateSkillsList();
+                        this.value = '';
+                    }
+                }
+            });
+
+            function updateSkillsList() {
+                skillsList.innerHTML = skills.map(skill => `
+                    <li>
+                        ${skill.name} (Level ${skill.level}/5)
+                        <button onclick="removeSkill('${skill.name}')" class="remove-skill">&times;</button>
+                    </li>
+                `).join('');
+            }
+
+            window.removeSkill = function(skillName) {
+                skills = skills.filter(s => s.name !== skillName);
+                updateSkillsList();
+            };
+        });
+    </script>
+    <style>
+        :root {
+            --primary-color: #ed0100;
+            --secondary-color: white;
+            --background-color: #202120;
+            --text-color: white;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .profile-header {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 900;
+            transition: background-color 3s, transform 3s ease;
+        }
+        .profile-personal {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+        }
+        .profile-picture-container {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border: 2px solid var(--primary-color);
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-picture {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .logo {
+            margin-bottom: 30px;
+        }
+        .profile-header .logo {
+            margin: 0;
+            padding: 0;
+        }
+        .logo img {
+            max-width: 150px;
+            height: auto;
+            display: block;
+        }
+        .auth-box h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        .auth-box p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .form-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        input, textarea, select {
+            width: 90%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background-color: #333;
+            color: white;
+        }
+        select {
+            cursor: pointer;
+        }
+        select option {
+            background-color: #333;
+            color: white;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .creation-h1 {
+            font-size: 30px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .custom-red-button {
+            position: relative;
+            background-color: #ed0100;
+            color: white;
+            border: 1px solid #f87171;
+            border-bottom-width: 4px;
+            font-weight: 500;
+            overflow: hidden;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            outline: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .custom-red-button:hover {
+            filter: brightness(1.5);
+            border-top-width: 4px;
+            border-bottom-width: 1px;
+        }
+        .custom-red-button:active {
+            opacity: 0.75;
+        }
+        .rounded-box {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            background-color: #333;
+            border: 2px solid #444;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+        .profile-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .profile-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .profile-left, .profile-right {
+            flex: 1;
+            min-width: 300px;
+        }
+        .info-card {
+            background-color: #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .info-card h2 {
+            color: #ed0100;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .validation-message {
+            color: #ed0100;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        #skills-list, #certification-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+        #skills-list li, .certification-item {
+            background-color: #444;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .remove-skill, .remove-cert {
+            background: none;
+            border: none;
+            color: #ed0100;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #444;
+            margin: 20px 0;
+        }
+        .btn-primary {
+            background-color: #ed0100;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="logo">
+            <center><img src="logo.png" alt="NAB Logo"></center>
+            <div class="creation-h1">
+                <center>Create Your Profile</center>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-left">
+            <div class="info-card">
+                <h2 style="color: White">Personal Information</h2>
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" required>
+                    <div class="validation-message" id="name-validation"></div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email ID *</label>
+                    <input type="email" id="email" required>
+                    <div class="validation-message" id="email-validation"></div>
+                </div>
+                <div class="form-group">
+                    <label for="dateOfJoining">Date of Joining *</label>
+                    <input type="date" id="dateOfJoining" required>
+                    <div class="validation-message" id="dateOfJoining-validation"></div>
+                </div>
+                <div class="form-group">
+                    <label for="position">Position in Company/Team *</label>
+                    <input type="text" id="position" required>
+                    <div class="validation-message" id="position-validation"></div>
+                </div>
+                <div class="form-group">
+                    <label for="team">Team Name</label>
+                    <select id="team">
+                        <option value="">Select a team</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h2 style="color: white">Skills *</h2>
+                <div class="form-group">
+                    <input type="text" id="skill-input" placeholder="Type a skill and press Enter">
+                    <div class="validation-message" id="skills-validation"></div>
+                </div>
+                <ul id="skills-list"></ul>
+            </div>
+
+            <div class="info-card">
+                <h2 style="color: white">Qualifications *</h2>
+                <div class="form-group">
+                    <textarea id="qualifications" rows="4" placeholder="Enter your qualifications" required></textarea>
+                    <div class="validation-message" id="qualifications-validation"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-right">
+            <div class="info-card">
+                <h2 style="color: white">Profile Photo *</h2>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div class="profile-picture-container">
+                        <img id="profile-preview" src="https://via.placeholder.com/150" class="profile-picture">
+                    </div>
+                    <input type="file" id="profile-picture" accept="image/*" onchange="handleProfilePictureUpload(event)" style="display: none;" required>
+                    <button class="btn-primary" onclick="document.getElementById('profile-picture').click()">Upload Photo</button>
+                    <div class="validation-message" id="profile-picture-validation"></div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h2 style="color: white">Certifications *</h2>
+                <div class="form-group">
+                    <input type="file" id="certifications" multiple accept=".pdf,.doc,.docx" onchange="handleCertificationUpload(event)" required>
+                    <div class="validation-message" id="certifications-validation"></div>
+                </div>
+                <div id="certification-list" class="certification-list"></div>
+            </div>
+
+            <div class="info-card">
+                <h2 style="color: white">Social Media Platforms <span style="color: #ed0100;">*</span></h2>
+                <div class="form-group">
+                    <label for="linkedin">LinkedIn</label>
+                    <input type="url" id="linkedin" placeholder="LinkedIn Profile URL">
+                </div>
+                <div class="form-group">
+                    <label for="instagram">Instagram</label>
+                    <input type="url" id="instagram" placeholder="Instagram Profile URL">
+                </div>
+                <div class="form-group">
+                    <label for="facebook">Facebook</label>
+                    <input type="url" id="facebook" placeholder="Facebook Profile URL">
+                </div>
+                <div class="validation-message" id="social-media-validation"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-actions" style="text-align: center; margin-top: 20px;">
+        <button class="custom-red-button" onclick="saveProfile()">Complete Profile</button>
+    </div>
+</div>
+</body>
+</html>
