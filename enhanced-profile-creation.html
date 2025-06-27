@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAB Professional Network - Enhanced Profile Creation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ed0100;
+            --secondary-color: white;
+            --background-color: #202120;
+            --text-color: white;
+            --card-bg: #2a2b2a;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--background-color) 0%, #1a1b1a 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), #ff4444);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Enhanced Header */
+        .header-section {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(42,43,42,0.9) 100%);
+            backdrop-filter: blur(15px);
+            margin-bottom: 40px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .logo-container {
+            margin-bottom: 30px;
+        }
+
+        .logo-container img {
+            width: 100px;
+            height: auto;
+            filter: drop-shadow(0 0 15px rgba(237, 1, 0, 0.4));
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--text-color), #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            color: rgba(255,255,255,0.7);
+            font-weight: 300;
+        }
+
+        /* Form Container */
+        .form-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .form-section {
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(42,43,42,0.8) 100%);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            animation: cardSlideIn 0.8s ease-out both;
+        }
+
+        @keyframes cardSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), #ff4444);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .form-section:hover::before {
+            transform: scaleX(1);
+        }
+
+        .form-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border-color: rgba(237, 1, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), #ff4444);
+            border-radius: 3px;
+        }
+
+        /* Enhanced Form Fields */
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 16px;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 0 20px rgba(237, 1, 0, 0.3);
+            transform: scale(1.02);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Enhanced Profile Picture Upload */
+        .profile-picture-upload {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .picture-preview-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--primary-color);
+            background: rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .picture-preview-container::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary-color), #ff4444, var(--primary-color));
+            animation: rotate 3s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .picture-preview-container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(237, 1, 0, 0.4);
+        }
+
+        .picture-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .picture-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6);
+            font-size: 48px;
+        }
+
+        .upload-btn {
+            background: linear-gradient(45deg, var(--primary-color), #ff4444);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .upload-btn:hover::before {
+            left: 100%;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(237, 1, 0, 0.4);
+        }
+
+        /* Enhanced Skills Section */
+        .skills-input-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .skills-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .skills-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 0 20px rgba(237, 1, 0, 0.3);
+        }
+
+        .add-skill-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-skill-btn:hover {
+            background: #ff4444;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .skill-tag {
+            background: linear-gradient(45deg, var(--primary-color), #ff4444);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .skill-tag:hover::before {
+            left: 100%;
+        }
+
+        .skill-tag:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(237, 1, 0, 0.4);
+        }
+
+        .remove-skill {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .remove-skill:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Enhanced Submit Button */
+        .submit-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, var(--primary-color), #ff4444);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(237, 1, 0, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* Skill Level Popup */
+        .skill-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .skill-popup.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .skill-popup-content {
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(42,43,42,0.9) 100%);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            min-width: 300px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .skill-popup.show .skill-popup-content {
+            transform: scale(1);
+        }
+
+        .skill-popup h3 {
+            margin-bottom: 25px;
+            color: var(--text-color);
+            font-size: 20px;
+        }
+
+        .skill-level-btn {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-color);
+            border: 2px solid transparent;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .skill-level-btn:hover {
+            border-color: var(--primary-color);
+            background: rgba(237, 1, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .form-section {
+                padding: 25px;
+            }
+
+            .header-title {
+                font-size: 28px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Enhanced Header -->
+    <div class="header-section">
+        <div class="logo-container">
+            <img src="https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=2" alt="NAB Logo">
+        </div>
+        <h1 class="header-title">Create Your Professional Profile</h1>
+        <p class="header-subtitle">Build your digital presence and connect with colleagues</p>
+    </div>
+
+    <!-- Enhanced Form -->
+    <div class="form-container">
+        <form id="profileForm">
+            <div class="form-grid">
+                <!-- Personal Information Section -->
+                <div class="form-section" style="animation-delay: 0.2s">
+                    <h2 class="section-title">Personal Information</h2>
+                    
+                    <div class="profile-picture-upload">
+                        <div class="picture-preview-container" onclick="document.getElementById('profilePicture').click()">
+                            <div class="picture-placeholder" id="picturePlaceholder">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <img id="picturePreview" class="picture-preview" style="display: none;">
+                        </div>
+                        <input type="file" id="profilePicture" accept="image/*" style="display: none;">
+                        <button type="button" class="upload-btn" onclick="document.getElementById('profilePicture').click()">
+                            <i class="fas fa-upload"></i> Upload Photo
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="fullName">Full Name *</label>
+                        <input type="text" id="fullName" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email Address *</label>
+                        <input type="email" id="email" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="position">Position *</label>
+                        <input type="text" id="position" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="team">Team</label>
+                        <select id="team" class="form-select">
+                            <option value="">Select Team</option>
+                            <option value="skill-tech">Skill-Tech</option>
+                            <option value="leadership">Leadership</option>
+                            <option value="data">Data</option>
+                            <option value="hr">HR</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="joinDate">Date of Joining *</label>
+                        <input type="date" id="joinDate" class="form-input" required>
+                    </div>
+                </div>
+
+                <!-- Skills & Experience Section -->
+                <div class="form-section" style="animation-delay: 0.3s">
+                    <h2 class="section-title">Skills & Experience</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Technical Skills *</label>
+                        <div class="skills-input-container">
+                            <input type="text" id="skillInput" class="skills-input" placeholder="Type a skill and press Enter">
+                            <button type="button" class="add-skill-btn" onclick="addSkill()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="skills-list" id="skillsList"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="qualifications">Qualifications *</label>
+                        <textarea id="qualifications" class="form-textarea" placeholder="Describe your educational background and qualifications" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="about">About Me</label>
+                        <textarea id="about" class="form-textarea" placeholder="Tell us about yourself, your interests, and what drives you"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="certifications">Certifications</label>
+                        <input type="file" id="certifications" class="form-input" multiple accept=".pdf,.doc,.docx">
+                        <small style="color: rgba(255,255,255,0.6); font-size: 12px;">Upload your certification documents (PDF, DOC, DOCX)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media Section -->
+            <div class="form-section" style="animation-delay: 0.4s; margin-bottom: 40px;">
+                <h2 class="section-title">Social Media & Contact</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label" for="linkedin">LinkedIn Profile</label>
+                        <input type="url" id="linkedin" class="form-input" placeholder="https://linkedin.com/in/yourprofile">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="github">GitHub Profile</label>
+                        <input type="url" id="github" class="form-input" placeholder="https://github.com/yourusername">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="twitter">Twitter Profile</label>
+                        <input type="url" id="twitter" class="form-input" placeholder="https://twitter.com/yourusername">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="submit-container">
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-rocket"></i> Create Profile
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Skill Level Popup -->
+    <div class="skill-popup" id="skillPopup">
+        <div class="skill-popup-content">
+            <h3>Select Skill Level for <span id="skillName"></span></h3>
+            <div>
+                <button type="button" class="skill-level-btn" onclick="selectSkillLevel('Beginner')">Beginner</button>
+                <button type="button" class="skill-level-btn" onclick="selectSkillLevel('Intermediate')">Intermediate</button>
+                <button type="button" class="skill-level-btn" onclick="selectSkillLevel('Advanced')">Advanced</button>
+                <button type="button" class="skill-level-btn" onclick="selectSkillLevel('Expert')">Expert</button>
+            </div>
+            <button type="button" class="skill-level-btn" onclick="closeSkillPopup()" style="margin-top: 15px; background: rgba(255,255,255,0.2);">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let skills = [];
+        let currentSkill = '';
+
+        // Progress bar update
+        function updateProgress() {
+            const form = document.getElementById('profileForm');
+            const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+            let filledInputs = 0;
+
+            inputs.forEach(input => {
+                if (input.value.trim() !== '') {
+                    filledInputs++;
+                }
+            });
+
+            const progress = (filledInputs / inputs.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        // Profile picture preview
+        document.getElementById('profilePicture').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('picturePreview').src = e.target.result;
+                    document.getElementById('picturePreview').style.display = 'block';
+                    document.getElementById('picturePlaceholder').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Skills management
+        document.getElementById('skillInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addSkill();
+            }
+        });
+
+        function addSkill() {
+            const skillInput = document.getElementById('skillInput');
+            const skill = skillInput.value.trim();
+            
+            if (skill && !skills.some(s => s.name.toLowerCase() === skill.toLowerCase())) {
+                currentSkill = skill;
+                document.getElementById('skillName').textContent = skill;
+                document.getElementById('skillPopup').classList.add('show');
+            }
+            
+            skillInput.value = '';
+        }
+
+        function selectSkillLevel(level) {
+            if (currentSkill) {
+                skills.push({
+                    name: currentSkill,
+                    level: level
+                });
+                updateSkillsList();
+                closeSkillPopup();
+            }
+        }
+
+        function closeSkillPopup() {
+            document.getElementById('skillPopup').classList.remove('show');
+            currentSkill = '';
+        }
+
+        function updateSkillsList() {
+            const skillsList = document.getElementById('skillsList');
+            skillsList.innerHTML = skills.map((skill, index) => `
+                <div class="skill-tag">
+                    <span>${skill.name} (${skill.level})</span>
+                    <button type="button" class="remove-skill" onclick="removeSkill(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeSkill(index) {
+            skills.splice(index, 1);
+            updateSkillsList();
+        }
+
+        // Form submission
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalContent = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.innerHTML = '<div class="loading-spinner"></div> Creating Profile...';
+            submitBtn.disabled = true;
+            
+            // Simulate form submission
+            setTimeout(() => {
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Profile Created!';
+                submitBtn.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+                
+                setTimeout(() => {
+                    window.location.href = 'enhanced-profile-view.html';
+                }, 1500);
+            }, 2000);
+        });
+
+        // Update progress on input change
+        document.addEventListener('input', updateProgress);
+        document.addEventListener('change', updateProgress);
+
+        // Initialize progress
+        updateProgress();
+
+        // Add smooth scrolling for form sections
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.form-section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+
+        // Close popup when clicking outside
+        document.getElementById('skillPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSkillPopup();
+            }
+        });
+    </script>
+</body>
+</html>
