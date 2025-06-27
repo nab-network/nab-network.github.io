@@ -613,8 +613,108 @@
         .toast.show {
             transform: translateX(0);
         }
+        /* Section Title */
+.section-title {
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--primary-color); /* Uses theme variable */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Post Form */
+#postForm {
+  max-width: 600px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+/* Textarea Styling */
+#postForm textarea {
+  width: 100%;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: none;
+  resize: none;
+  font-family: 'Poppins';
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-color);
+}
+
+/* File Input */
+#postAttachments {
+  margin-bottom: 15px;
+  color: var(--text-color);
+}
+
+/* Submit Button */
+#postForm .btn-primary {
+  width: 100%;
+  padding: 12px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(45deg, var(--primary-color), #ff4444);
+  color: white;
+  border: none;
+  transition: var(--transition);
+}
+
+#postForm .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(237, 1, 0, 0.4);
+}
+
+/* Individual Post Display */
+.post {
+  background: #1c1d1c;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  max-width: 600px;
+  animation: fadeInUp 0.5s ease;
+}
+
+.post p {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.post ul {
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.post a {
+  color: var(--primary-color);
+  text-decoration: underline;
+  word-break: break-word;
+}
+
     </style>
 </head>
+    <!-- Add Post Form -->
+<div class="colleagues-section">
+  <div class="section-header">
+    <h2 class="section-title">Share an Update</h2>
+    <p class="section-subtitle">Post an update and attach files</p>
+  </div>
+
+  <form id="postForm" style="max-width: 600px; margin: 0 auto; background: #2a2b2a; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+    <textarea id="postText" placeholder="What's on your mind?" rows="4" style="width: 100%; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: none; resize: none; font-family: 'Poppins'; font-size: 16px;"></textarea>
+    <input type="file" id="postAttachments" multiple style="margin-bottom: 15px; color: white;" />
+    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;"><i class="fas fa-paper-plane"></i> Post</button>
+  </form>
+
+  <div id="postsContainer" style="margin-top: 40px;"></div>
+</div>
 <body>
     <!-- Animated Background Particles -->
     <div class="particles" id="particles"></div>
@@ -990,6 +1090,47 @@
             header.style.transform = `translateY(${scrolled * 0.5}px)`;
             particles.style.transform = `translateY(${scrolled * 0.3}px)`;
         });
+        document.getElementById('postForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const text = document.getElementById('postText').value.trim();
+  const files = document.getElementById('postAttachments').files;
+  const postContainer = document.getElementById('postsContainer');
+
+  if (!text && files.length === 0) {
+    showToast('Please enter text or attach files.');
+    return;
+  }
+
+  const postDiv = document.createElement('div');
+  postDiv.style = "background: #1c1d1c; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);";
+
+  if (text) {
+    const p = document.createElement('p');
+    p.textContent = text;
+    p.style = "margin-bottom: 10px;";
+    postDiv.appendChild(p);
+  }
+
+  if (files.length > 0) {
+    const ul = document.createElement('ul');
+    for (let file of files) {
+      const li = document.createElement('li');
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(file);
+      link.download = file.name;
+      link.textContent = file.name;
+      link.style = "color: var(--primary-color);";
+      li.appendChild(link);
+      ul.appendChild(li);
+    }
+    postDiv.appendChild(ul);
+  }
+
+  postContainer.prepend(postDiv); // Add newest post on top
+  document.getElementById('postForm').reset();
+  showToast('Post added!');
+});
     </script>
 </body>
 </html>
