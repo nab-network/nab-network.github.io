@@ -302,44 +302,20 @@
             <div class="filter-section">
                 <div class="filter-header">Skill Level</div>
                 <div class="filter-option">
-                    <input type="checkbox" id="filter-skill-level-1" value="1/10">
-                    <label for="filter-skill-level-1">1/10</label>
+                    <input type="checkbox" id="filter-skill-level-beginner" value="Beginner">
+                    <label for="filter-skill-level-beginner">Beginner</label>
                 </div>
                 <div class="filter-option">
-                    <input type="checkbox" id="filter-skill-level-2" value="2/10">
-                    <label for="filter-skill-level-2">2/10</label>
+                    <input type="checkbox" id="filter-skill-level-intermediate" value="Intermediate">
+                    <label for="filter-skill-level-intermediate">Intermediate</label>
                 </div>
                 <div class="filter-option">
-                    <input type="checkbox" id="filter-skill-level-3" value="3/10">
-                    <label for="filter-skill-level-3">3/10</label>
+                    <input type="checkbox" id="filter-skill-level-expert" value="Expert">
+                    <label for="filter-skill-level-expert">Expert</label>
                 </div>
                 <div class="filter-option">
-                    <input type="checkbox" id="filter-skill-level-4" value="4/10">
-                    <label for="filter-skill-level-4">4/10</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="filter-skill-level-5" value="5/10">
-                    <label for="filter-skill-level-5">5/10</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="filter-skill-level-6" value="6/10">
-                    <label for="filter-skill-level-6">6/10</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="filter-skill-level-7" value="7/10">
-                    <label for="filter-skill-level-7">7/10</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="filter-skill-level-8" value="8/10">
-                    <label for="filter-skill-level-8">8/10</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="filter-skill-level-9" value="9/10">
-                    <label for="filter-skill-level-9">9/10</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="filter-skill-level-10" value="10/10">
-                    <label for="filter-skill-level-10">10/10</label>
+                    <input type="checkbox" id="filter-skill-level-master" value="Master">
+                    <label for="filter-skill-level-master">Master</label>
                 </div>
             </div>
             <button class="btn-primary" style="width: 100%; margin-top: 10px;" id="applyFilters">Apply Filters</button>
@@ -348,7 +324,7 @@
 </div>
 
 <div class="colleagues-grid" id="colleagues-grid">
-    <div class="colleague-card" data-skills="Python,JavaScript,React" data-team="Skill-tech" data-skill-level="9">
+    <div class="colleague-card" data-skills="Python,JavaScript,React" data-team="Skill-tech" data-skill-level="Expert">
         <img src="https://via.placeholder.com/100?text=JD" alt="Colleague Photo" class="colleague-photo">
         <h3>John Doe</h3>
         <p class="position">Senior Developer</p>
@@ -363,7 +339,7 @@
         </div>
     </div>
 
-    <div class="colleague-card" data-skills="Agile,Scrum,Product Ownership" data-team="Leadership" data-skill-level="7">
+    <div class="colleague-card" data-skills="Agile,Scrum,Product Ownership" data-team="Leadership" data-skill-level="Expert">
         <img src="https://via.placeholder.com/100?text=JL" alt="Colleague Photo" class
                 ="colleague-photo">
         <h3>Jane Lee</h3>
@@ -379,7 +355,7 @@
         </div>
     </div>
 
-    <div class="colleague-card" data-skills="SQL,Power BI,Excel" data-team="Data" data-skill-level="8">
+    <div class="colleague-card" data-skills="SQL,Power BI,Excel" data-team="Data" data-skill-level="Expert">
         <img src="https://via.placeholder.com/100?text=PJ" alt="Colleague Photo" class="colleague-photo">
         <h3>Peter Jones</h3>
         <p class="position">Data Analyst</p>
@@ -394,7 +370,7 @@
         </div>
     </div>
 
-    <div class="colleague-card" data-skills="Recruitment,Employee Relations,HR Strategy" data-team="HR" data-skill-level="6">
+    <div class="colleague-card" data-skills="Recruitment,Employee Relations,HR Strategy" data-team="HR" data-skill-level="Intermediate">
         <img src="https://via.placeholder.com/100?text=SM" alt="Colleague Photo" class="colleague-photo">
         <h3>Sarah Miller</h3>
         <p class="position">HR Business Partner</p>
@@ -513,7 +489,7 @@
         function filterColleagueCards() {
             colleagueCards.forEach(card => {
                 const cardTeam = card.dataset.team || '';
-                const cardSkillLevel = card.dataset.skillLevel ? parseInt(card.dataset.skillLevel, 10) : null;
+                const cardSkillLevel = card.dataset.skillLevel ? card.dataset.skillLevel.toLowerCase() : null;
 
                 let shouldShow = true;
 
@@ -526,10 +502,7 @@
 
                 // Check skill level filters
                 if (activeFilters.skillLevel.length > 0) {
-                    // Extract the numerical part of the skill level from the filter value (e.g., "7" from "7/10")
-                    const activeSkillLevelsNum = activeFilters.skillLevel.map(sl => parseInt(sl.split('/')[0], 10));
-
-                    if (cardSkillLevel === null || !activeSkillLevelsNum.includes(cardSkillLevel)) {
+                    if (cardSkillLevel === null || !activeFilters.skillLevel.includes(cardSkillLevel)) {
                         shouldShow = false;
                     }
                 }

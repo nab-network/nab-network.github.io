@@ -14,153 +14,23 @@
             const skillInput = document.getElementById('skill-input');
             let skills = [];
 
-            // Airtable configuration for teams
-            const AIRTABLE_API_KEY = 'patw6VVGEq3Uq8h9E.91e9582b450cc5ee58f50bf1793eb917968404239b314c74cd20df28462636cf';
-            const AIRTABLE_BASE_ID = 'appwgI8yyj7oLI4Ui';
-            const TEAMS_TABLE_NAME = 'Teams'; // New table for teams
-            const TEAMS_API_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TEAMS_TABLE_NAME}`;
-
-            // Load existing teams from Airtable and create next team number
-            async function loadTeams() {
-                try {
-                    const response = await fetch(TEAMS_API_URL, {
-                        headers: {
-                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        const existingTeams = data.records.map(record => record.fields.TeamName);
-                        updateTeamDropdown(existingTeams);
-                    } else {
-                        console.error('Failed to load teams from Airtable');
-                        // Start with Team 1 if no teams exist
-                        updateTeamDropdown([]);
-                    }
-                } catch (error) {
-                    console.error('Error loading teams:', error);
-                    // Start with Team 1 if network error
-                    updateTeamDropdown([]);
-                }
-            }
-
-            // Update team dropdown with auto-numbered teams
-            function updateTeamDropdown(existingTeams) {
-                const teamSelect = document.getElementById('team');
-                
-                // Clear existing options
-                teamSelect.innerHTML = '<option value="">Select a team</option>';
-                
-                // Find the highest team number
-                let maxTeamNumber = 0;
-                existingTeams.forEach(team => {
-                    const match = team.match(/^Team (\d+)$/);
-                    if (match) {
-                        const teamNumber = parseInt(match[1]);
-                        if (teamNumber > maxTeamNumber) {
-                            maxTeamNumber = teamNumber;
-                        }
-                    }
-                });
-                
-                // Create teams from 1 to maxTeamNumber + 10 (for future use)
-                for (let i = 1; i <= maxTeamNumber + 10; i++) {
-                    const teamName = `Team ${i}`;
-                    const option = document.createElement('option');
-                    option.value = teamName;
-                    option.textContent = teamName;
-                    teamSelect.appendChild(option);
-                }
-            }
-
-            // Handle team selection - create team in database if it doesn't exist
-            document.getElementById('team').addEventListener('change', async function() {
-                const selectedTeam = this.value;
-                if (selectedTeam && selectedTeam.startsWith('Team ')) {
-                    await ensureTeamExists(selectedTeam);
-                }
-            });
-
-            // Ensure team exists in Airtable database
-            async function ensureTeamExists(teamName) {
-                try {
-                    // First, check if team already exists
-                    const response = await fetch(TEAMS_API_URL, {
-                        headers: {
-                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        const existingTeams = data.records.map(record => record.fields.TeamName);
-                        
-                        // If team doesn't exist, create it
-                        if (!existingTeams.includes(teamName)) {
-                            await createTeam(teamName);
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error checking team existence:', error);
-                }
-            }
-
-            // Create team in Airtable
-            async function createTeam(teamName) {
-                try {
-                    const response = await fetch(TEAMS_API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`
-                        },
-                        body: JSON.stringify({
-                            records: [
-                                {
-                                    fields: {
-                                        'TeamName': teamName
-                                    }
-                                }
-                            ]
-                        })
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('Team created:', data);
-                    } else {
-                        const errorData = await response.json();
-                        console.error('Error creating team:', errorData);
-                    }
-                } catch (error) {
-                    console.error('Network error creating team:', error);
-                }
-            }
-
-            // Load teams when page loads
-            loadTeams();
-
             // Handle skills input
             skillInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     const skill = this.value.trim();
-                    if (skill && !skills.some(s => s.name === skill)) { // Check if skill name already exists
-                        const skillLevel = prompt(`Please enter your skill level for ${skill} (1-5 out of 5):`);
-                        const level = parseInt(skillLevel);
-
-                        if (isNaN(level) || level < 1 || level > 5) {
-                            alert('Please enter a valid skill level between 1 and 5. Try again.');
-                            return;
-                        }
-
-                        skills.push({
-                            name: skill,
-                            level: level
+                    if (skill && !skills.some(s => s.name === skill)) {
+                        // Show a popup for skill level selection
+                        showSkillLevelPopup(skill, (selectedLevel) => {
+                            if (selectedLevel) {
+                                skills.push({
+                                    name: skill,
+                                    level: selectedLevel
+                                });
+                                updateSkillsList();
+                                skillInput.value = '';
+                            }
                         });
-                        updateSkillsList();
-                        this.value = '';
                     }
                 }
             });
@@ -168,7 +38,7 @@
             function updateSkillsList() {
                 skillsList.innerHTML = skills.map(skill => `
                     <li>
-                        ${skill.name} (Level ${skill.level}/5)
+                        ${skill.name} (${skill.level})
                         <button onclick="removeSkill('${skill.name}')" class="remove-skill">&times;</button>
                     </li>
                 `).join('');
@@ -178,6 +48,50 @@
                 skills = skills.filter(s => s.name !== skillName);
                 updateSkillsList();
             };
+
+            // Popup for skill level selection
+            function showSkillLevelPopup(skill, callback) {
+                // Remove any existing popup
+                const oldPopup = document.getElementById('skill-level-popup');
+                if (oldPopup) oldPopup.remove();
+                
+                const popup = document.createElement('div');
+                popup.id = 'skill-level-popup';
+                popup.style.position = 'fixed';
+                popup.style.left = '0';
+                popup.style.top = '0';
+                popup.style.width = '100vw';
+                popup.style.height = '100vh';
+                popup.style.background = 'rgba(0,0,0,0.5)';
+                popup.style.display = 'flex';
+                popup.style.alignItems = 'center';
+                popup.style.justifyContent = 'center';
+                popup.style.zIndex = '9999';
+
+                popup.innerHTML = `
+                    <div style="background: #222; color: #fff; padding: 32px 24px; border-radius: 12px; min-width: 260px; text-align: center;">
+                        <h3 style="margin-bottom: 18px;">Choose skill level for <br><span style='color:#ed0100'>${skill}</span></h3>
+                        <button class="popup-skill-btn" data-level="Beginner">Beginner</button>
+                        <button class="popup-skill-btn" data-level="Intermediate">Intermediate</button>
+                        <button class="popup-skill-btn" data-level="Expert">Expert</button>
+                        <button class="popup-skill-btn" data-level="Master">Master</button>
+                        <br><br>
+                        <button id="cancel-skill-popup" style="margin-top:10px; background:#444; color:#fff; border:none; padding:6px 18px; border-radius:6px; cursor:pointer;">Cancel</button>
+                    </div>
+                `;
+                document.body.appendChild(popup);
+                
+                popup.querySelectorAll('.popup-skill-btn').forEach(btn => {
+                    btn.onclick = function() {
+                        document.body.removeChild(popup);
+                        callback(this.dataset.level);
+                    };
+                });
+                document.getElementById('cancel-skill-popup').onclick = function() {
+                    document.body.removeChild(popup);
+                    callback(null);
+                };
+            }
         });
     </script>
     <style>
@@ -381,6 +295,22 @@
             cursor: pointer;
             margin-top: 10px;
         }
+        /* Add popup button style */
+        .popup-skill-btn {
+            background: #ed0100;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            margin: 0 6px 10px 6px;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .popup-skill-btn:hover {
+            background: #fff;
+            color: #ed0100;
+        }
     </style>
 </head>
 <body>
@@ -420,9 +350,7 @@
                 </div>
                 <div class="form-group">
                     <label for="team">Team Name</label>
-                    <select id="team">
-                        <option value="">Select a team</option>
-                    </select>
+                    <input type="text" id="team" placeholder="Enter your team name">
                 </div>
             </div>
 
