@@ -702,20 +702,7 @@
 </head>
    
 <body>
-    <div class="colleagues-section">
-  <div class="section-header">
-    <h2 class="section-title">Share an Update</h2>
-    <p class="section-subtitle">Post an update and attach files</p>
-  </div>
 
-  <form id="postForm" style="max-width: 600px; margin: 0 auto; background: #2a2b2a; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-    <textarea id="postText" placeholder="What's on your mind?" rows="4" style="width: 100%; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: none; resize: none; font-family: 'Poppins'; font-size: 16px;"></textarea>
-    <input type="file" id="postAttachments" multiple style="margin-bottom: 15px; color: white;" />
-    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;"><i class="fas fa-paper-plane"></i> Post</button>
-  </form>
-
-  <div id="postsContainer" style="margin-top: 40px;"></div>
-</div>
     <!-- Animated Background Particles -->
     <div class="particles" id="particles"></div>
 
@@ -913,6 +900,20 @@
         <i class="fas fa-check-circle"></i>
         <span id="toastMessage">Action completed successfully!</span>
     </div>
+     <div class="colleagues-section">
+  <div class="section-header">
+    <h2 class="section-title">Share an Update</h2>
+    <p class="section-subtitle">Post an update and attach files</p>
+  </div>
+
+  <form id="postForm" style="max-width: 600px; margin: 0 auto; background: #2a2b2a; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+    <textarea id="postText" placeholder="What's on your mind?" rows="4" style="width: 100%; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: none; resize: none; font-family: 'Poppins'; font-size: 16px;"></textarea>
+    <input type="file" id="postAttachments" multiple style="margin-bottom: 15px; color: white;" />
+    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;"><i class="fas fa-paper-plane"></i> Post</button>
+  </form>
+
+  <div id="postsContainer" style="margin-top: 40px;"></div>
+</div>
 
     <script>
         // Create animated background particles
